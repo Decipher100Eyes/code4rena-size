@@ -181,23 +181,41 @@ library SellCreditMarket {
             });
         }
 
+        // if (params.creditPositionId == RESERVED_ID) {
+        //     // slither-disable-next-line unused-return
+        //     state.createDebtAndCreditPositions({
+        //         lender: msg.sender,
+        //         borrower: msg.sender,
+        //         futureValue: creditAmountIn,
+        //         dueDate: block.timestamp + tenor
+        //     });
+        // }
+
+        // state.createCreditPosition({
+        //     exitCreditPositionId: params.creditPositionId == RESERVED_ID
+        //         ? state.data.nextCreditPositionId - 1
+        //         : params.creditPositionId,
+        //     lender: params.lender,
+        //     credit: creditAmountIn
+        // });
+        
+        //Follow BuyCreditMarket.sol structure
+        
         if (params.creditPositionId == RESERVED_ID) {
             // slither-disable-next-line unused-return
             state.createDebtAndCreditPositions({
-                lender: msg.sender,
+                lender: params.lender,
                 borrower: msg.sender,
                 futureValue: creditAmountIn,
                 dueDate: block.timestamp + tenor
             });
+        } else {
+            state.createCreditPosition({
+                exitCreditPositionId: params.creditPositionId, // 기존 credit 이전 혹은 분할
+                lender: params.lender,
+                credit: creditAmountIn
+            });
         }
-
-        state.createCreditPosition({
-            exitCreditPositionId: params.creditPositionId == RESERVED_ID
-                ? state.data.nextCreditPositionId - 1
-                : params.creditPositionId,
-            lender: params.lender,
-            credit: creditAmountIn
-        });
         state.data.borrowAToken.transferFrom(params.lender, msg.sender, cashAmountOut);
         state.data.borrowAToken.transferFrom(params.lender, state.feeConfig.feeRecipient, fees);
     }
