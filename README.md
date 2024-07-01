@@ -50,7 +50,3 @@ uint256 liquidatorReward = Math.min(
   Math.mulDivUp(debtInCollateralToken, state.feeConfig.liquidationRewardPercent,PERCENT)
 );
 ```
-
-## Tools Used
-
-Foundry
