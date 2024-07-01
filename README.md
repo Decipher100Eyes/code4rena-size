@@ -19,7 +19,9 @@ In other words the tenor must meet the two conditions below.
 1. loanOffer.yiledCurve.tenors[0] <= tenor <= loanOffer.yiledCurve.tenors[length - 1]
 2. tenor <= loanOffer.maxDueDate - block.timestamp
 
-However, if the loanOffer's maxDudate they chose is less than yieldCurve.tenors[0] + block.timestamp,
+However, if the loanOffer's maxDudate they chose is less than yieldCurve.tenors[0] + block.timestamp,<br>
+loanOffer.maxDuedate < yieldCurve.tenors[0] + block.timestamp
+=> loanOffer.maxDuedate - block.timestamp < yiledCurve.tenors[0] <br>
 the minium tenor borrower can choose(yieldCurve.tenors[0]) always exceed maxDueDate - block.timestamp.</br>
 So this loan offer can not be matched to any sell credit market order forever.
 
