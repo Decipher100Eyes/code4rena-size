@@ -2,7 +2,7 @@
 
 ## Root cause and summary
 
-When borrowers sell credit with a market order, they select a loan_offer and submit their desired tenor.
+When borrowers sell credit with a market order, they select a loan_offer and submit their desired tenor.</br>
 In case of secondary trade, this tenor is calculated with existing debtPosition duedate.
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L84
 
