@@ -7,9 +7,9 @@ This calculated reward capped to liquidationRewardPercent(5%) on future value of
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/Liquidate.sol#L96-L99
 
 However, 5% of debt position future value is not converted to collateral token amount.
-In current code, Future value of debtPosition is unit of USDC but calculated reward should be unit of CollateralToken(ETH).
+In the current code, the future value of debtPosition is unit of USDC but calculated reward should be unit of CollateralToken(ETH).
 The decimal of USDC is 1e6, and the decimal of ETH is 1e18. In this wrong comparison, most of time liquidation reward should be miscalculated in favor against liquidator.
-The future value (decimal of 6) will always be less thant collateral token (decilmal of 18).
+The future value (decimal of 6) will always be less than collateral token (decilmal of 18).
 When it adds liquidate reward to liquidator at the end of function, liquidatorReward is considered as ETH unit, as if the comparison was correct.
 So the liquidator receives much less liquidation reward than that of the procotocl promised.
 
@@ -41,7 +41,7 @@ assertEq(
 
 ## Recommended Mitigation Steps
 
-Debt position future value should be converted to collateral token unit when choosing proper liquidator reward.
+The future value of the Debt position should be converted to collateral token unit when choosing proper liquidator reward.
 As debtInCollateralToken already represents the value of debtposition in collateral token with proper decimal, it should be used instead of debtPosition.futureValue.
 
 ```
@@ -53,4 +53,4 @@ uint256 liquidatorReward = Math.min(
 
 ## Tools Used
 
-foundry
+Foundry
