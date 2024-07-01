@@ -6,20 +6,20 @@ https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/BuyCr
 
 ## Root cause and summary
 
-When borrowers sell credit with a market order, they select a loanOffer and submit their desired tenor.</br>
-In case of secondary trade, this tenor is calculated with existing debtPosition duedate.</br>
+When borrowers sell credit by market order, they select a loanOffer and submit their desired tenor.</br>
+In case of secondary trade, this tenor is calculated with existing debtPosition due date.</br>
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L84
 
 There are 2 main validations for this tenor.</br>
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L98-L100</br>
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/YieldCurveLibrary.sol#L121C9-L123C10
 
-So the tenor must meet the two conditions below.
+In other words the tenor must meet the two conditions below.
 
 1. loanOffer.yiledCurve.tenors[0] <= tenor <= loanOffer.yiledCurve.tenors[length - 1]
 2. tenor <= loanOffer.maxDueDate - block.timestamp
 
-If the loanOffer they chose made up with maxDudate < yieldCurve.tenors[0] + block.timestamp,
+However, if the loanOffer's maxDudate they chose is less than yieldCurve.tenors[0] + block.timestamp,
 the minium tenor borrower can choose(yieldCurve.tenors[0]) always exceed maxDueDate - block.timestamp.</br>
 So this loan offer can not be matched to any sell credit market order forever.
 
