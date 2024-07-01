@@ -1,5 +1,9 @@
 # If lender make loanOffer with maxDudate < yieldCurve.tenors[0] + block.timestamp, every sellCreditLimit order for this loanOffer reverts
 
+## Llines of code
+
+https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/BuyCreditLimit.sol#L29-L51
+
 ## Root cause and summary
 
 When borrowers sell credit with a market order, they select a loanOffer and submit their desired tenor.</br>
