@@ -153,12 +153,15 @@ library LiquidateWithReplacement {
         DebtPosition storage debtPosition = state.getDebtPosition(
             params.debtPositionId
         );
+        //before
         // DebtPosition memory debtPositionCopy = debtPosition;
         BorrowOffer storage borrowOffer = state
             .data
             .users[params.borrower]
             .borrowOffer;
+        //before
         // uint256 tenor = debtPositionCopy.dueDate - block.timestamp;
+        //after
         uint256 tenor = debtPosition.dueDate - block.timestamp;
         uint256 futureValueCopy = debtPosition.futureValue;
 
@@ -181,8 +184,10 @@ library LiquidateWithReplacement {
             }),
             tenor
         );
+        //before
         // issuanceValue = Math.mulDivDown(debtPositionCopy.futureValue, PERCENT, PERCENT + ratePerTenor);
         // liquidatorProfitBorrowToken = debtPositionCopy.futureValue - issuanceValue;
+        //after
         issuanceValue = Math.mulDivDown(
             futureValueCopy,
             PERCENT,
@@ -191,7 +196,9 @@ library LiquidateWithReplacement {
         liquidatorProfitBorrowToken = futureValueCopy - issuanceValue;
 
         debtPosition.borrower = params.borrower;
+        //before
         // debtPosition.futureValue = debtPositionCopy.futureValue;
+        //after
         debtPosition.futureValue = futureValueCopy;
         debtPosition.liquidityIndexAtRepayment = 0;
 
