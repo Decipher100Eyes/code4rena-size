@@ -57,10 +57,6 @@ library BuyCreditMarket {
             borrower = params.borrower;
             tenor = params.tenor;
 
-            // validate tenor
-            if (tenor < state.riskConfig.minTenor || tenor > state.riskConfig.maxTenor) {
-                revert Errors.TENOR_OUT_OF_RANGE(tenor, state.riskConfig.minTenor, state.riskConfig.maxTenor);
-            }
         } else {
             CreditPosition storage creditPosition = state.getCreditPosition(params.creditPositionId);
             DebtPosition storage debtPosition = state.getDebtPositionByCreditPositionId(params.creditPositionId);
