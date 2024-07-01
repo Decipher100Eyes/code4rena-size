@@ -1,4 +1,4 @@
-# Liquidator cannot achieve proper liquidator reward as protocol promised.
+# Audit Report: Liquidator cannot achieve proper liquidator reward as protocol promised
 
 ## Root cause and summary
 
