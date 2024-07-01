@@ -8,14 +8,13 @@ To reduce gas usage in size project, we revised the `executeLiquidate()` functio
 ## Root cause
 
 In the `executeLiquidateWithReplacement()` function of `LiquidateWithReplacement.sol` file, the `debtPositionCopy` variable, which copies `debtPosition` (struct object) to memory, is needed to restore the `debtPosition.futureValue` (uint256) which is updated by the `executeLiquidate()` function.
-
 At this time, rather than copying the entire `debtPosition` structure object, gas usage can be reduced by copying only the actually needed value, `debtPosition.futureValue`.
 
 ## Proof of Concept
 
 You can compare code changes: https://github.com/Decipher100Eyes/code4arena-size/commit/4d084263ddc65c604675623b223dfad814d8de5e
 
-The log below shows the results of comparing gas usage using the `LiquidateWithReplacement.t.sol` file. “consumed” refers to the gas consumption of our proposed code, and “expected” refers to the gas consumption of the existing code.
+The log below shows the results of comparing gas usage using the `LiquidateWithReplacement.t.sol` file. The “consumed” refers to the gas consumption of our proposed code, and the “expected” refers to the gas consumption of the existing code.
 
 - **"LiquidateWithReplacementTest::test_LiquidateWithReplacement_liquidateWithReplacement_cannot_leave_new_borrower_liquidatable()": consumed "(gas: 2209750)" gas, expected "(gas: 2210048)" gas**
 - **"LiquidateWithReplacementTest::test_LiquidateWithReplacement_liquidateWithReplacement_experiment()": consumed "(gas: 2600537)" gas, expected "(gas: 2600835)" gas**
@@ -24,7 +23,7 @@ The log below shows the results of comparing gas usage using the `LiquidateWithR
 
 ## Tools Used
 
-To know the gas useage, we utilize Foundary framework (https://github.com/foundry-rs/foundry).
+To know the gas useage, we utilize Foundary framework(https://github.com/foundry-rs/foundry).
 
 ## Recommended Mitigation Steps
 
