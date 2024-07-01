@@ -1,4 +1,4 @@
-# Audit Report: Suggestions for Optimizing Gas Usage in LiquidateWithReplacement.sol
+# Audit Report: Suggestions for optimizing gas usage in LiquidateWithReplacement.sol
 
 ## Impact and Summary
 
