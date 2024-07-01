@@ -1,8 +1,8 @@
-# If lender make loan offer with maxDudate < yieldCurve.tenors[0] + block.timestamp, every sellCreditLimit order for this loan offer reverts
+# If lender make loanOffer with maxDudate < yieldCurve.tenors[0] + block.timestamp, every sellCreditLimit order for this loanOffer reverts
 
 ## Root cause and summary
 
-When borrowers sell credit with a market order, they select a loan offer and submit their desired tenor.</br>
+When borrowers sell credit with a market order, they select a loanOffer and submit their desired tenor.</br>
 In case of secondary trade, this tenor is calculated with existing debtPosition duedate.</br>
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L84
 
@@ -15,7 +15,7 @@ So the tenor must meet the two conditions below.
 1. loanOffer.yiledCurve.tenors[0] <= tenor <= loanOffer.yiledCurve.tenors[length - 1]
 2. tenor <= loanOffer.maxDueDate - block.timestamp
 
-If the loan offer they chose made up with maxDudate < yieldCurve.tenors[0] + block.timestamp,
+If the loanOffer they chose made up with maxDudate < yieldCurve.tenors[0] + block.timestamp,
 the minium tenor borrower can choose(yieldCurve.tenors[0]) always exceed maxDueDate - block.timestamp.</br>
 So this loan offer can not be matched to any sell credit market order forever.
 
