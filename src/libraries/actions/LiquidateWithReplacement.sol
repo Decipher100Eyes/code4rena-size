@@ -44,12 +44,17 @@ library LiquidateWithReplacement {
     /// @notice Validates the input parameters for liquidating a debt position with a replacement borrower
     /// @param state The state
     /// @param params The input parameters for liquidating a debt position with a replacement borrower
-    function validateLiquidateWithReplacement(State storage state, LiquidateWithReplacementParams calldata params)
-        external
-        view
-    {
-        DebtPosition storage debtPosition = state.getDebtPosition(params.debtPositionId);
-        BorrowOffer storage borrowOffer = state.data.users[params.borrower].borrowOffer;
+    function validateLiquidateWithReplacement(
+        State storage state,
+        LiquidateWithReplacementParams calldata params
+    ) external view {
+        DebtPosition storage debtPosition = state.getDebtPosition(
+            params.debtPositionId
+        );
+        BorrowOffer storage borrowOffer = state
+            .data
+            .users[params.borrower]
+            .borrowOffer;
 
         // validate liquidate
         state.validateLiquidate(
@@ -64,8 +69,15 @@ library LiquidateWithReplacement {
             revert Errors.LOAN_NOT_ACTIVE(params.debtPositionId);
         }
         uint256 tenor = debtPosition.dueDate - block.timestamp;
-        if (tenor < state.riskConfig.minTenor || tenor > state.riskConfig.maxTenor) {
-            revert Errors.TENOR_OUT_OF_RANGE(tenor, state.riskConfig.minTenor, state.riskConfig.maxTenor);
+        if (
+            tenor < state.riskConfig.minTenor ||
+            tenor > state.riskConfig.maxTenor
+        ) {
+            revert Errors.TENOR_OUT_OF_RANGE(
+                tenor,
+                state.riskConfig.minTenor,
+                state.riskConfig.maxTenor
+            );
         }
 
         // validate borrower
@@ -82,8 +94,12 @@ library LiquidateWithReplacement {
         uint256 apr = borrowOffer.getAPRByTenor(
             VariablePoolBorrowRateParams({
                 variablePoolBorrowRate: state.oracle.variablePoolBorrowRate,
-                variablePoolBorrowRateUpdatedAt: state.oracle.variablePoolBorrowRateUpdatedAt,
-                variablePoolBorrowRateStaleRateInterval: state.oracle.variablePoolBorrowRateStaleRateInterval
+                variablePoolBorrowRateUpdatedAt: state
+                    .oracle
+                    .variablePoolBorrowRateUpdatedAt,
+                variablePoolBorrowRateStaleRateInterval: state
+                    .oracle
+                    .variablePoolBorrowRateStaleRateInterval
             }),
             tenor
         );
@@ -117,16 +133,34 @@ library LiquidateWithReplacement {
     /// @return issuanceValue The issuance value
     /// @return liquidatorProfitCollateralToken The profit in collateral tokens expected by the liquidator
     /// @return liquidatorProfitBorrowToken The profit in borrow tokens expected by the liquidator
-    function executeLiquidateWithReplacement(State storage state, LiquidateWithReplacementParams calldata params)
+    function executeLiquidateWithReplacement(
+        State storage state,
+        LiquidateWithReplacementParams calldata params
+    )
         external
-        returns (uint256 issuanceValue, uint256 liquidatorProfitCollateralToken, uint256 liquidatorProfitBorrowToken)
+        returns (
+            uint256 issuanceValue,
+            uint256 liquidatorProfitCollateralToken,
+            uint256 liquidatorProfitBorrowToken
+        )
     {
-        emit Events.LiquidateWithReplacement(params.debtPositionId, params.borrower, params.minimumCollateralProfit);
+        emit Events.LiquidateWithReplacement(
+            params.debtPositionId,
+            params.borrower,
+            params.minimumCollateralProfit
+        );
 
-        DebtPosition storage debtPosition = state.getDebtPosition(params.debtPositionId);
-        DebtPosition memory debtPositionCopy = debtPosition;
-        BorrowOffer storage borrowOffer = state.data.users[params.borrower].borrowOffer;
-        uint256 tenor = debtPositionCopy.dueDate - block.timestamp;
+        DebtPosition storage debtPosition = state.getDebtPosition(
+            params.debtPositionId
+        );
+        // DebtPosition memory debtPositionCopy = debtPosition;
+        BorrowOffer storage borrowOffer = state
+            .data
+            .users[params.borrower]
+            .borrowOffer;
+        // uint256 tenor = debtPositionCopy.dueDate - block.timestamp;
+        uint256 tenor = debtPosition.dueDate - block.timestamp;
+        uint256 futureValueCopy = debtPosition.futureValue;
 
         liquidatorProfitCollateralToken = state.executeLiquidate(
             LiquidateParams({
@@ -138,16 +172,27 @@ library LiquidateWithReplacement {
         uint256 ratePerTenor = borrowOffer.getRatePerTenor(
             VariablePoolBorrowRateParams({
                 variablePoolBorrowRate: state.oracle.variablePoolBorrowRate,
-                variablePoolBorrowRateUpdatedAt: state.oracle.variablePoolBorrowRateUpdatedAt,
-                variablePoolBorrowRateStaleRateInterval: state.oracle.variablePoolBorrowRateStaleRateInterval
+                variablePoolBorrowRateUpdatedAt: state
+                    .oracle
+                    .variablePoolBorrowRateUpdatedAt,
+                variablePoolBorrowRateStaleRateInterval: state
+                    .oracle
+                    .variablePoolBorrowRateStaleRateInterval
             }),
             tenor
         );
-        issuanceValue = Math.mulDivDown(debtPositionCopy.futureValue, PERCENT, PERCENT + ratePerTenor);
-        liquidatorProfitBorrowToken = debtPositionCopy.futureValue - issuanceValue;
+        // issuanceValue = Math.mulDivDown(debtPositionCopy.futureValue, PERCENT, PERCENT + ratePerTenor);
+        // liquidatorProfitBorrowToken = debtPositionCopy.futureValue - issuanceValue;
+        issuanceValue = Math.mulDivDown(
+            futureValueCopy,
+            PERCENT,
+            PERCENT + ratePerTenor
+        );
+        liquidatorProfitBorrowToken = futureValueCopy - issuanceValue;
 
         debtPosition.borrower = params.borrower;
-        debtPosition.futureValue = debtPositionCopy.futureValue;
+        // debtPosition.futureValue = debtPositionCopy.futureValue;
+        debtPosition.futureValue = futureValueCopy;
         debtPosition.liquidityIndexAtRepayment = 0;
 
         emit Events.UpdateDebtPosition(
@@ -158,7 +203,15 @@ library LiquidateWithReplacement {
         );
 
         state.data.debtToken.mint(params.borrower, debtPosition.futureValue);
-        state.data.borrowAToken.transferFrom(address(this), params.borrower, issuanceValue);
-        state.data.borrowAToken.transferFrom(address(this), state.feeConfig.feeRecipient, liquidatorProfitBorrowToken);
+        state.data.borrowAToken.transferFrom(
+            address(this),
+            params.borrower,
+            issuanceValue
+        );
+        state.data.borrowAToken.transferFrom(
+            address(this),
+            state.feeConfig.feeRecipient,
+            liquidatorProfitBorrowToken
+        );
     }
 }
