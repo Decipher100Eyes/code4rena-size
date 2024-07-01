@@ -1,5 +1,9 @@
 # Audit Report: Liquidator cannot achieve proper liquidator reward as protocol promised
 
+## Lines of code
+
+https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/Liquidate.sol#L75-L126
+
 ## Root cause and summary
 
 In executeLiquidate, if liquidation is profitable, liquidatorReward is assignedCollateral(collateral amount assigned to target debtPosition) - debtInCollateralToken(debt position futureValue as collateral token).
