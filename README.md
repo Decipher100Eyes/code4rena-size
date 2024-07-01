@@ -139,7 +139,3 @@ https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/YieldCurveLib
 
 Therefore, if the condition params.maxDueDate > block.timestamp + state.riskConfig.minTenor is met,
 ensure params.maxDueDate < block.timestamp + state.riskConfig.minTenor.
-
-## Tools Used
-
-foundry
