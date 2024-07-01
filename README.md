@@ -3,12 +3,12 @@
 ## Root cause and summary
 
 When borrowers sell credit with a market order, they select a loan_offer and submit their desired tenor.</br>
-In case of secondary trade, this tenor is calculated with existing debtPosition duedate.
+In case of secondary trade, this tenor is calculated with existing debtPosition duedate.</br>
 https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L84
 
-There are 2 main validations for this tenor.
-https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L98-L100.
-https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/YieldCurveLibrary.sol#L121C9-L123C10.
+There are 2 main validations for this tenor.</br>
+https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/actions/SellCreditMarket.sol#L98-L100</br>
+https://github.com/code-423n4/2024-06-size/blob/main/src/libraries/YieldCurveLibrary.sol#L121C9-L123C10
 
 So the tenor must meet the two conditions below.
 
