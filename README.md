@@ -7,7 +7,7 @@ To reduce gas usage in size project, we revised the `executeLiquidate()` functio
 
 ## Root cause
 
-In the `executeLiquidateWithReplacement()` function of `LiquidateWithReplacement.sol file`, the `debtPositionCopy` variable, which copies `debtPosition` (struct object) to memory, is needed to restore the `debtPosition.futureValue` (uint256) which is updated by the `executeLiquidate()` function.
+In the `executeLiquidateWithReplacement()` function of `LiquidateWithReplacement.sol` file, the `debtPositionCopy` variable, which copies `debtPosition` (struct object) to memory, is needed to restore the `debtPosition.futureValue` (uint256) which is updated by the `executeLiquidate()` function.
 
 At this time, rather than copying the entire `debtPosition` structure object, gas usage can be reduced by copying only the actually needed value, `debtPosition.futureValue`.
 
