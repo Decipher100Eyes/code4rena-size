@@ -23,7 +23,7 @@ The log below shows the results of comparing gas usage using the `LiquidateWithR
 
 ## Tools Used
 
-To know the gas useage, we utilize Foundary framework(https://github.com/foundry-rs/foundry).
+To evaluate the gas usage, we utilize Foundary framework(https://github.com/foundry-rs/foundry).
 
 ## Recommended Mitigation Steps
 
