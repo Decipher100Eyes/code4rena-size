@@ -93,6 +93,13 @@ library Liquidate {
 
         // profitable liquidation
         if (assignedCollateral > debtInCollateralToken) {
+            // before
+            // uint256 liquidatorReward = Math.min(
+            //     assignedCollateral - debtInCollateralToken,
+            //     Math.mulDivUp(debtPosition.futureValue, state.feeConfig.liquidationRewardPercent, PERCENT)
+            // );
+
+            // after
             uint256 liquidatorReward = Math.min(
                 assignedCollateral - debtInCollateralToken,
                 Math.mulDivUp(debtPosition.futureValue, state.feeConfig.liquidationRewardPercent, PERCENT)
