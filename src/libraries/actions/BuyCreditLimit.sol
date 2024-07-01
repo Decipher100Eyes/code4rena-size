@@ -39,14 +39,21 @@ library BuyCreditLimit {
             if (params.maxDueDate == 0) {
                 revert Errors.NULL_MAX_DUE_DATE();
             }
-            if (params.maxDueDate < block.timestamp + state.riskConfig.minTenor) {
-                revert Errors.PAST_MAX_DUE_DATE(params.maxDueDate);
-            }
+
+            // before
+            // if (params.maxDueDate < block.timestamp + state.riskConfig.minTenor) {
+            //     revert Errors.PAST_MAX_DUE_DATE(params.maxDueDate);
+            // }
 
             // validate curveRelativeTime
             YieldCurveLibrary.validateYieldCurve(
                 params.curveRelativeTime, state.riskConfig.minTenor, state.riskConfig.maxTenor
             );
+
+            // after
+            if (params.maxDueDate < block.timestamp + params.curveRelativeTime.tenors[0]) {
+                revert Errors.INVALID_MAX_DUE_DATE_WITH_TENORS(params.maxDueDate, params.curveRelativeTime.tenors[0]);
+            }
         }
     }
 
