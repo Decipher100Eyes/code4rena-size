@@ -91,7 +91,34 @@ library SellCreditMarket {
 
         // validate amount
         if (params.amount < state.riskConfig.minimumCreditBorrowAToken) {
-            revert Errors.CREDIT_LOWER_THAN_MINIMUM_CREDIT(params.amount, state.riskConfig.minimumCreditBorrowAToken);
+            if (params.exactAmountIn) {
+                revert Errors.CREDIT_LOWER_THAN_MINIMUM_CREDIT(params.amount, state.riskConfig.minimumCreditBorrowAToken);
+            }
+            else {
+                CreditPosition memory creditPosition;
+                uint256 ratePerTenor = state.data.users[params.lender].loanOffer.getRatePerTenor(
+                    VariablePoolBorrowRateParams({
+                        variablePoolBorrowRate: state.oracle.variablePoolBorrowRate,
+                        variablePoolBorrowRateUpdatedAt: state.oracle.variablePoolBorrowRateUpdatedAt,
+                        variablePoolBorrowRateStaleRateInterval: state.oracle.variablePoolBorrowRateStaleRateInterval
+                    }),
+                    tenor
+                );
+                (uint256 creditAmountIn, uint256 fees) = state.getCreditAmountIn({
+                    cashAmountOut: params.amount,
+                    maxCashAmountOut: params.creditPositionId == RESERVED_ID
+                        ? params.amount
+                        : Math.mulDivDown(creditPosition.credit, PERCENT - state.getSwapFeePercent(tenor), PERCENT + ratePerTenor),
+                    maxCredit: params.creditPositionId == RESERVED_ID
+                        ? Math.mulDivUp(params.amount, PERCENT + ratePerTenor, PERCENT - state.getSwapFeePercent(tenor))
+                        : creditPosition.credit,
+                    ratePerTenor: ratePerTenor,
+                    tenor: tenor
+                });
+                if (creditAmountIn < state.riskConfig.minimumCreditBorrowAToken) {
+                    revert Errors.CREDIT_LOWER_THAN_MINIMUM_CREDIT(creditAmountIn, state.riskConfig.minimumCreditBorrowAToken);
+                }
+            }
         }
 
         // validate tenor

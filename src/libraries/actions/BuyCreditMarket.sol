@@ -89,7 +89,34 @@ library BuyCreditMarket {
 
         // validate amount
         if (params.amount < state.riskConfig.minimumCreditBorrowAToken) {
-            revert Errors.CREDIT_LOWER_THAN_MINIMUM_CREDIT(params.amount, state.riskConfig.minimumCreditBorrowAToken);
+            if (!params.exactAmountIn) {
+                revert Errors.CREDIT_LOWER_THAN_MINIMUM_CREDIT(params.amount, state.riskConfig.minimumCreditBorrowAToken);
+            }
+            else {
+                CreditPosition memory creditPosition;
+                uint256 ratePerTenor = state.data.users[borrower].borrowOffer.getRatePerTenor(
+                    VariablePoolBorrowRateParams({
+                        variablePoolBorrowRate: state.oracle.variablePoolBorrowRate,
+                        variablePoolBorrowRateUpdatedAt: state.oracle.variablePoolBorrowRateUpdatedAt,
+                        variablePoolBorrowRateStaleRateInterval: state.oracle.variablePoolBorrowRateStaleRateInterval
+                    }),
+                    tenor
+                );
+                (uint256 creditAmountOut, uint256 fees) = state.getCreditAmountOut({
+                    cashAmountIn: params.amount,
+                    maxCashAmountIn: params.creditPositionId == RESERVED_ID
+                        ? params.amount
+                        : Math.mulDivUp(creditPosition.credit, PERCENT, PERCENT + ratePerTenor),
+                    maxCredit: params.creditPositionId == RESERVED_ID
+                        ? Math.mulDivDown(params.amount, PERCENT + ratePerTenor, PERCENT)
+                        : creditPosition.credit,
+                    ratePerTenor: ratePerTenor,
+                    tenor: tenor
+                });
+                if (creditAmountOut < state.riskConfig.minimumCreditBorrowAToken) {
+                    revert Errors.CREDIT_LOWER_THAN_MINIMUM_CREDIT(creditAmountOut, state.riskConfig.minimumCreditBorrowAToken);
+                }
+            }
         }
 
         // validate deadline
